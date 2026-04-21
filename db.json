@@ -1,0 +1,93 @@
+{
+  "players": [
+    {
+      "id": "player_1",
+      "name": "ShadowBlade",
+      "role": "Jungle",
+      "secondaryRole": "Exp",
+      "available": true,
+      "tournamentsPlayed": [],
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "player_2",
+      "name": "PhantomGold",
+      "role": "Gold",
+      "secondaryRole": "Mid",
+      "available": true,
+      "tournamentsPlayed": [],
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "player_3",
+      "name": "ReaperX",
+      "role": "Exp",
+      "secondaryRole": "Gold",
+      "available": true,
+      "tournamentsPlayed": [],
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "player_4",
+      "name": "VoidMage",
+      "role": "Mid",
+      "secondaryRole": "Roam",
+      "available": true,
+      "tournamentsPlayed": [],
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "player_5",
+      "name": "IronShield",
+      "role": "Roam",
+      "secondaryRole": "Jungle",
+      "available": true,
+      "tournamentsPlayed": [],
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z"
+    },
+    {
+      "name": "DB Tester",
+      "role": "Exp",
+      "secondaryRole": "",
+      "available": true,
+      "id": "player_1776780928346_pln1a",
+      "tournamentsPlayed": [],
+      "createdAt": "2026-04-21T14:15:28.346Z",
+      "updatedAt": "2026-04-21T14:15:28.346Z"
+    }
+  ],
+  "tournaments": [
+    {
+      "id": "tournament_1",
+      "name": "Shadow Cup Season 1",
+      "date": "2025-05-15",
+      "time": "18:00",
+      "format": "BO3",
+      "type": "5vs5",
+      "prizePool": "₱5,000",
+      "status": "Upcoming",
+      "availablePlayers": [
+        "player_1",
+        "player_2",
+        "player_3",
+        "player_4",
+        "player_5"
+      ],
+      "lineup": {
+        "Jungle": "",
+        "Gold": "",
+        "Exp": "",
+        "Mid": "",
+        "Roam": ""
+      },
+      "substitutes": [],
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z"
+    }
+  ]
+}

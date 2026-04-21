@@ -1,0 +1,182 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background-color: #080a0f;
+    color: #e2e8f0;
+    font-family: 'Exo 2', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #0d1017;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #263550;
+    border-radius: 2px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #ef4444;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-cave/80 backdrop-blur-sm border border-steel/50 rounded-xl;
+  }
+
+  .crimson-glow {
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.25), inset 0 0 15px rgba(239, 68, 68, 0.05);
+  }
+
+  .neon-glow {
+    box-shadow: 0 0 15px rgba(34, 211, 238, 0.25);
+  }
+
+  .gold-glow {
+    box-shadow: 0 0 15px rgba(251, 191, 36, 0.25);
+  }
+
+  .grid-bg {
+    background-image:
+      linear-gradient(rgba(239, 68, 68, 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(239, 68, 68, 0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  .hex-pattern {
+    background-color: #080a0f;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='49' viewBox='0 0 28 49'%3E%3Cg fill-rule='evenodd'%3E%3Cg id='hexagons' fill='%23ef4444' fill-opacity='0.03' fill-rule='nonzero'%3E%3Cpath d='M13.99 9.25l13 7.5v15l-13 7.5L1 31.75v-15l12.99-7.5zM3 17.9v12.7l10.99 6.34 11-6.35V17.9l-11-6.34L3 17.9zM0 15l12.98-7.5V0h-2v6.35L0 12.69v2.3zm0 18.5L12.98 41v8h-2v-6.85L0 35.81v-2.3zM15 0v7.5L27.99 15H28v-2.31h-.01L17 6.35V0h-2zm0 49v-8l12.99-7.5H28v2.31h-.01L17 42.15V49h-2z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+
+  .role-badge {
+    @apply text-xs font-mono font-bold px-2 py-0.5 rounded uppercase tracking-widest;
+  }
+
+  .stat-divider {
+    @apply w-px h-8 bg-steel;
+  }
+
+  .nav-item {
+    @apply flex items-center gap-3 px-4 py-3 rounded-lg text-ghost transition-all duration-200 font-display font-semibold text-sm tracking-wide cursor-pointer;
+  }
+
+  .nav-item:hover {
+    @apply text-white bg-steel/50;
+  }
+
+  .nav-item.active {
+    @apply text-white bg-crimson-600/20 border-l-2 border-crimson-500;
+  }
+
+  .btn-primary {
+    @apply flex items-center gap-2 px-4 py-2.5 bg-crimson-600 hover:bg-crimson-500 text-white font-display font-semibold text-sm tracking-wide rounded-lg transition-all duration-200 cursor-pointer;
+  }
+
+  .btn-secondary {
+    @apply flex items-center gap-2 px-4 py-2.5 bg-steel hover:bg-slate text-ghost hover:text-white font-display font-semibold text-sm tracking-wide rounded-lg transition-all duration-200 cursor-pointer;
+  }
+
+  .btn-ghost {
+    @apply flex items-center gap-2 px-3 py-2 text-ghost hover:text-white hover:bg-steel/50 rounded-lg transition-all duration-200 cursor-pointer text-sm font-display;
+  }
+
+  .btn-danger {
+    @apply flex items-center gap-2 px-3 py-2 text-crimson-400 hover:text-white hover:bg-crimson-600/30 rounded-lg transition-all duration-200 cursor-pointer text-sm;
+  }
+
+  .input-field {
+    @apply w-full bg-abyss border border-steel/60 rounded-lg px-4 py-2.5 text-white placeholder-mist focus:outline-none focus:border-crimson-500/60 focus:ring-1 focus:ring-crimson-500/20 font-body text-sm transition-all duration-200;
+  }
+
+  .select-field {
+    @apply w-full bg-abyss border border-steel/60 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-crimson-500/60 focus:ring-1 focus:ring-crimson-500/20 font-body text-sm transition-all duration-200 cursor-pointer;
+  }
+
+  .label {
+    @apply block text-ghost text-xs font-display font-semibold tracking-widest uppercase mb-1.5;
+  }
+
+  .section-header {
+    @apply text-2xl font-display font-bold text-white tracking-wide;
+  }
+
+  .table-header {
+    @apply text-xs font-mono font-bold text-mist uppercase tracking-widest py-3 px-4;
+  }
+
+  .table-row {
+    @apply border-b border-steel/30 hover:bg-steel/20 transition-colors duration-150;
+  }
+
+  .table-cell {
+    @apply py-3 px-4 text-sm font-body;
+  }
+
+  .animate-fadeIn {
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  .animate-scaleIn {
+    animation: scaleIn 0.2s ease-out;
+  }
+}
+
+@layer utilities {
+  .text-gradient-red {
+    background: linear-gradient(135deg, #ef4444, #ff6b35);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .text-gradient-gold {
+    background: linear-gradient(135deg, #fbbf24, #f97316);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .border-gradient {
+    border-image: linear-gradient(135deg, #ef4444, transparent) 1;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-12px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.modal-backdrop {
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modal-content {
+  animation: scaleIn 0.25s ease-out;
+}
