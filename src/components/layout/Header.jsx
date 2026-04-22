@@ -32,12 +32,15 @@ export default function Header({ onMenuClick }) {
       </button>
 
       {/* Mobile logo */}
-      <div className="lg:hidden flex items-center gap-2">
+      <button 
+        onClick={() => setActivePage('dashboard')}
+        className="lg:hidden flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+      >
         <div className="w-7 h-7 bg-crimson-600 rounded-md flex items-center justify-center">
           <Skull size={14} className="text-white" />
         </div>
         <span className="text-white font-display font-bold text-sm tracking-wide">APEX</span>
-      </div>
+      </button>
 
       <div className="flex-1 hidden lg:block">
         <h1 className="text-white font-display font-bold text-lg tracking-wide">

@@ -50,7 +50,10 @@ export default function Sidebar({ mobileOpen, onClose }) {
       >
         {/* Logo */}
         <div className="p-5 border-b border-steel/40">
-          <div className="flex items-center gap-3">
+          <button 
+            onClick={() => navTo('dashboard')}
+            className="flex items-center gap-3 w-full text-left hover:opacity-80 transition-opacity"
+          >
             <div className="w-9 h-9 bg-crimson-600 rounded-lg flex items-center justify-center crimson-glow">
               <Skull size={18} className="text-white" />
             </div>
@@ -60,7 +63,7 @@ export default function Sidebar({ mobileOpen, onClose }) {
               </p>
               <p className="text-mist text-xs font-mono tracking-widest">MLBB MANAGER</p>
             </div>
-          </div>
+          </button>
         </div>
 
         {/* Quick stats */}
