@@ -19,9 +19,6 @@ export default function Header({ onMenuClick }) {
   const { activePage, tournaments, setActivePage } = useApp();
   const { user, isAdmin, signOut } = useAuth();
   
-  // Debug log to confirm context is working
-  console.log('Header Current Page:', activePage);
-
   const upcoming = tournaments.filter((t) => t.status === 'Upcoming').length;
 
   return (

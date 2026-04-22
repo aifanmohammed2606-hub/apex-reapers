@@ -53,9 +53,8 @@ export default function Dashboard() {
             <Zap size={14} className="text-red-400" />
             <span className="text-red-400 text-xs font-mono tracking-widest uppercase">Squad Active</span>
           </div>
-          <h2 className="text-white font-display font-black text-2xl lg:text-3xl tracking-wide flex items-baseline gap-3">
+          <h2 className="text-white font-display font-black text-2xl lg:text-3xl tracking-wide">
             Welcome back, <span className="text-gradient-red">{isAdmin ? 'Commander' : 'Reaper'}</span>
-            <span className="text-[10px] text-slate-600 font-mono tracking-tighter uppercase opacity-50">v2.1 Live</span>
           </h2>
           <p className="text-slate-400 text-sm font-body mt-1">
             {upcoming.length} upcoming tournament{upcoming.length !== 1 ? 's' : ''} · {available.length} players ready
