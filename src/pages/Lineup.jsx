@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
+import { useAuth } from '../context/AuthContext';
 import { Swords, Save, ChevronDown, X, UserCheck, AlertCircle, Trophy } from 'lucide-react';
 import { getRoleColor, getRoleIcon, getStatusColor, getFormatColor, formatDate } from '../utils/helpers';
 import { ROLES } from '../data/initialData';
 import Badge from '../components/ui/Badge';
 
-function RoleSlot({ role, selectedId, players, allSelected, onSelect, availableForTournament }) {
+function RoleSlot({ role, selectedId, players, allSelected, onSelect, availableForTournament, readOnly }) {
   const [open, setOpen] = useState(false);
   const selected = players.find((p) => p.id === selectedId);
 
@@ -14,6 +15,13 @@ function RoleSlot({ role, selectedId, players, allSelected, onSelect, availableF
     if (!p.available) return false;
     if (availableForTournament && !availableForTournament.includes(p.id)) return false;
     if (allSelected.includes(p.id) && p.id !== selectedId) return false;
+    
+    // Strict Role Filtering
+    const matchesPrimary = p.role === role;
+    const matchesSecondary = p.secondaryRole === role;
+    const matchesFlexible = p.flexibleRoles && p.flexibleRoles.includes(role);
+    if (!matchesPrimary && !matchesSecondary && !matchesFlexible) return false;
+
     return true;
   });
 
@@ -34,20 +42,26 @@ function RoleSlot({ role, selectedId, players, allSelected, onSelect, availableF
             <p className="text-white font-display font-semibold text-sm truncate">{selected.name}</p>
             <p className="text-slate-500 text-xs font-mono">{(selected.tournamentsPlayed || []).length} played</p>
           </div>
-          <button
-            onClick={() => onSelect('')}
-            className="p-1 text-slate-500 hover:text-red-400 rounded transition-all opacity-0 group-hover:opacity-100"
-          >
-            <X size={14} />
-          </button>
+          {!readOnly && (
+            <button
+              onClick={() => onSelect('')}
+              className="p-1 text-slate-500 hover:text-red-400 rounded transition-all opacity-0 group-hover:opacity-100"
+            >
+              <X size={14} />
+            </button>
+          )}
         </div>
       ) : (
         <button
-          onClick={() => setOpen(!open)}
-          className="w-full flex items-center justify-between px-3 py-3 bg-slate-800/60 hover:bg-slate-800 border border-dashed border-slate-700 hover:border-slate-600 rounded-xl text-slate-400 hover:text-white transition-all text-sm font-display"
+          onClick={() => !readOnly && setOpen(!open)}
+          className={`w-full flex items-center justify-between px-3 py-3 bg-slate-800/60 border border-dashed border-slate-700 rounded-xl text-sm font-display transition-all ${
+            !readOnly 
+              ? 'hover:bg-slate-800 hover:border-slate-600 text-slate-400 hover:text-white cursor-pointer' 
+              : 'text-slate-500 cursor-default'
+          }`}
         >
-          <span>Select {role}</span>
-          <ChevronDown size={14} className={`transition-transform ${open ? 'rotate-180' : ''}`} />
+          <span>{readOnly ? 'Empty Slot' : `Select ${role}`}</span>
+          {!readOnly && <ChevronDown size={14} className={`transition-transform ${open ? 'rotate-180' : ''}`} />}
         </button>
       )}
 
@@ -82,6 +96,7 @@ function RoleSlot({ role, selectedId, players, allSelected, onSelect, availableF
 
 export default function Lineup() {
   const { players, tournaments, saveLineup, activeTournamentId } = useApp();
+  const { isAdmin } = useAuth();
   const [selectedTournamentId, setSelectedTournamentId] = useState(() => {
     if (activeTournamentId && tournaments.find((t) => t.id === activeTournamentId)) {
       return activeTournamentId;
@@ -212,6 +227,7 @@ export default function Lineup() {
                   players={players}
                   allSelected={allSelected}
                   availableForTournament={tournament?.availablePlayers}
+                  readOnly={!isAdmin}
                   onSelect={(id) => { setLineup({ ...lineup, [role]: id }); setSaved(false); }}
                 />
               ))}
@@ -236,16 +252,16 @@ export default function Lineup() {
                   return (
                     <button
                       key={player.id}
-                      onClick={() => toggleSub(player.id)}
+                      onClick={() => isAdmin && toggleSub(player.id)}
                       className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-sm font-display font-semibold transition-all ${
                         isInSub
                           ? 'bg-cyan-900/20 border-cyan-500/40 text-cyan-400'
-                          : 'bg-slate-800/40 border-slate-700/50 text-slate-400 hover:text-white'
-                      }`}
+                          : 'bg-slate-800/40 border-slate-700/50 text-slate-400'
+                      } ${isAdmin ? 'hover:text-white cursor-pointer' : 'cursor-default'}`}
                     >
                       <span>{player.name}</span>
                       <Badge className={getRoleColor(player.role)}>{player.role}</Badge>
-                      {isInSub && <X size={12} />}
+                      {isInSub && isAdmin && <X size={12} />}
                     </button>
                   );
                 })}
@@ -266,22 +282,24 @@ export default function Lineup() {
           )}
 
           {/* Save Button */}
-          <div className="flex items-center justify-between">
-            <p className="text-slate-500 text-xs font-mono">
-              {substitutes.length} substitute{substitutes.length !== 1 ? 's' : ''} selected
-            </p>
-            <button
-              onClick={handleSave}
-              className={`flex items-center gap-2 px-6 py-3 rounded-xl font-display font-bold tracking-wide text-sm transition-all duration-200 ${
-                saved
-                  ? 'bg-emerald-600 text-white'
-                  : 'bg-red-600 hover:bg-red-500 text-white'
-              }`}
-            >
-              <Save size={16} />
-              {saved ? '✓ Saved!' : 'Save Lineup'}
-            </button>
-          </div>
+          {isAdmin && (
+            <div className="flex items-center justify-between">
+              <p className="text-slate-500 text-xs font-mono">
+                {substitutes.length} substitute{substitutes.length !== 1 ? 's' : ''} selected
+              </p>
+              <button
+                onClick={handleSave}
+                className={`flex items-center gap-2 px-6 py-3 rounded-xl font-display font-bold tracking-wide text-sm transition-all duration-200 ${
+                  saved
+                    ? 'bg-emerald-600 text-white'
+                    : 'bg-red-600 hover:bg-red-500 text-white'
+                }`}
+              >
+                <Save size={16} />
+                {saved ? '✓ Saved!' : 'Save Lineup'}
+              </button>
+            </div>
+          )}
         </>
       )}
 

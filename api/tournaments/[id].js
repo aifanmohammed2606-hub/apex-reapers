@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { requireAdmin } from '../_lib/authMiddleware.js';
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -8,7 +9,7 @@ const supabase = createClient(
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'PATCH, DELETE, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
   if (req.method === 'OPTIONS') return res.status(200).end();
 
@@ -17,6 +18,10 @@ export default async function handler(req, res) {
   if (!id) return res.status(400).json({ error: 'Tournament ID is required' });
 
   if (req.method === 'PATCH') {
+    // Admin-only — update tournament
+    const auth = await requireAdmin(req, res);
+    if (!auth) return;
+
     const { data, error } = await supabase
       .from('tournaments')
       .update({ ...req.body, updatedAt: new Date().toISOString() })
@@ -29,6 +34,10 @@ export default async function handler(req, res) {
   }
 
   if (req.method === 'DELETE') {
+    // Admin-only — delete tournament
+    const auth = await requireAdmin(req, res);
+    if (!auth) return;
+
     // Remove tournament from players' tournamentsPlayed arrays
     const { data: players } = await supabase.from('players').select('*');
 

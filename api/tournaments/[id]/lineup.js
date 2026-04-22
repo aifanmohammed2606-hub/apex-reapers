@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { requireAdmin } from '../../_lib/authMiddleware.js';
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -8,13 +9,17 @@ const supabase = createClient(
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'PATCH, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   if (req.method !== 'PATCH') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
+
+  // Admin-only — save lineup
+  const auth = await requireAdmin(req, res);
+  if (!auth) return;
 
   const { id } = req.query;
   const { lineup, substitutes } = req.body;

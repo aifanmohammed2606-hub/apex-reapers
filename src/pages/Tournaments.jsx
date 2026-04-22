@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useApp } from '../context/AppContext';
+import { useAuth } from '../context/AuthContext';
 import { Plus, Search, Edit2, Trash2, Trophy, Calendar, Clock, DollarSign } from 'lucide-react';
 import { formatDate, formatTime, getDaysUntil, getStatusColor, getFormatColor, filterBySearch } from '../utils/helpers';
 import { FORMATS, STATUSES, TYPES } from '../data/initialData';
@@ -139,7 +140,7 @@ function TournamentForm({ initial, onSubmit, onCancel, players }) {
   );
 }
 
-function TournamentCard({ t, onEdit, onDelete, onSetLineup }) {
+function TournamentCard({ t, onEdit, onDelete, onSetLineup, readOnly }) {
   const days = getDaysUntil(t.date);
   const lineupCount = Object.values(t.lineup || {}).filter(Boolean).length;
 
@@ -154,14 +155,16 @@ function TournamentCard({ t, onEdit, onDelete, onSetLineup }) {
             <Badge className="text-purple-400 bg-purple-900/20 border border-purple-500/30">{t.type || '5vs5'}</Badge>
           </div>
         </div>
-        <div className="flex items-center gap-1 flex-shrink-0">
-          <button onClick={() => onEdit(t)} className="p-1.5 text-slate-500 hover:text-blue-400 hover:bg-blue-900/20 rounded-lg transition-all">
-            <Edit2 size={15} />
-          </button>
-          <button onClick={() => onDelete(t)} className="p-1.5 text-slate-500 hover:text-red-400 hover:bg-red-900/20 rounded-lg transition-all">
-            <Trash2 size={15} />
-          </button>
-        </div>
+        {!readOnly && (
+          <div className="flex items-center gap-1 flex-shrink-0">
+            <button onClick={() => onEdit(t)} className="p-1.5 text-slate-500 hover:text-blue-400 hover:bg-blue-900/20 rounded-lg transition-all">
+              <Edit2 size={15} />
+            </button>
+            <button onClick={() => onDelete(t)} className="p-1.5 text-slate-500 hover:text-red-400 hover:bg-red-900/20 rounded-lg transition-all">
+              <Trash2 size={15} />
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-2 gap-2 mb-3">
@@ -204,9 +207,15 @@ function TournamentCard({ t, onEdit, onDelete, onSetLineup }) {
 
       <button
         onClick={() => onSetLineup(t)}
-        className="w-full py-2 bg-red-600/10 hover:bg-red-600/20 border border-red-500/20 hover:border-red-500/40 text-red-400 font-display font-semibold text-xs rounded-lg transition-all tracking-wide"
+        className={`w-full py-2 border font-display font-semibold text-xs rounded-lg transition-all tracking-wide ${
+          readOnly 
+            ? 'bg-slate-800/40 hover:bg-slate-700/60 border-slate-700/50 text-slate-400'
+            : 'bg-red-600/10 hover:bg-red-600/20 border-red-500/20 hover:border-red-500/40 text-red-400'
+        }`}
       >
-        {lineupCount === 5 ? '✓ Lineup Set — Edit' : 'Set Lineup →'}
+        {readOnly 
+          ? 'View Lineup →' 
+          : lineupCount === 5 ? '✓ Lineup Set — Edit' : 'Set Lineup →'}
       </button>
     </div>
   );
@@ -214,6 +223,7 @@ function TournamentCard({ t, onEdit, onDelete, onSetLineup }) {
 
 export default function Tournaments() {
   const { tournaments, addTournament, updateTournament, deleteTournament, setActivePage, setActiveTournamentId, players } = useApp();
+  const { isAdmin } = useAuth();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [modal, setModal] = useState(null);
@@ -248,19 +258,24 @@ export default function Tournaments() {
             </button>
           ))}
         </div>
-        <button onClick={() => setModal('add')} className="btn-primary whitespace-nowrap">
-          <Plus size={16} /> Add Tournament
-        </button>
+        {isAdmin && (
+          <button onClick={() => setModal('add')} className="btn-primary whitespace-nowrap">
+            <Plus size={16} /> Add Tournament
+          </button>
+        )}
       </div>
 
-      <p className="text-slate-500 text-sm font-mono">{filtered.length} tournament{filtered.length !== 1 ? 's' : ''}</p>
+      <div className="flex items-center gap-2">
+        <p className="text-slate-500 text-sm font-mono">{filtered.length} tournament{filtered.length !== 1 ? 's' : ''}</p>
+        {!isAdmin && <span className="text-slate-600 text-xs font-mono ml-auto">Read-only</span>}
+      </div>
 
       {filtered.length === 0 ? (
         <EmptyState
           icon={Trophy}
           title="No tournaments found"
           message={search ? 'Try a different search term' : 'Create your first tournament'}
-          action={!search && <button onClick={() => setModal('add')} className="btn-primary mx-auto"><Plus size={16} /> Add Tournament</button>}
+          action={!search && isAdmin && <button onClick={() => setModal('add')} className="btn-primary mx-auto"><Plus size={16} /> Add Tournament</button>}
         />
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -268,6 +283,7 @@ export default function Tournaments() {
             <TournamentCard
               key={t.id}
               t={t}
+              readOnly={!isAdmin}
               onEdit={(t) => setModal(t)}
               onDelete={(t) => setDeleteTarget(t)}
               onSetLineup={() => { setActiveTournamentId(t.id); setActivePage('lineup'); }}
@@ -276,27 +292,31 @@ export default function Tournaments() {
         </div>
       )}
 
-      <Modal isOpen={!!modal} onClose={() => setModal(null)} title={modal === 'add' ? 'Add Tournament' : `Edit ${modal?.name}`}>
-        <TournamentForm
-          initial={modal === 'add' ? undefined : modal}
-          players={players}
-          onSubmit={(data) => {
-            if (modal === 'add') addTournament(data);
-            else updateTournament(modal.id, data);
-            setModal(null);
-          }}
-          onCancel={() => setModal(null)}
-        />
-      </Modal>
+      {isAdmin && (
+        <Modal isOpen={!!modal} onClose={() => setModal(null)} title={modal === 'add' ? 'Add Tournament' : `Edit ${modal?.name}`}>
+          <TournamentForm
+            initial={modal === 'add' ? undefined : modal}
+            players={players}
+            onSubmit={(data) => {
+              if (modal === 'add') addTournament(data);
+              else updateTournament(modal.id, data);
+              setModal(null);
+            }}
+            onCancel={() => setModal(null)}
+          />
+        </Modal>
+      )}
 
-      <ConfirmDialog
-        isOpen={!!deleteTarget}
-        onClose={() => setDeleteTarget(null)}
-        onConfirm={() => { deleteTournament(deleteTarget.id); setDeleteTarget(null); }}
-        title="Delete Tournament"
-        message={`Remove "${deleteTarget?.name}" permanently? Player participation records will also be cleared.`}
-        confirmLabel="Delete"
-      />
+      {isAdmin && (
+        <ConfirmDialog
+          isOpen={!!deleteTarget}
+          onClose={() => setDeleteTarget(null)}
+          onConfirm={() => { deleteTournament(deleteTarget.id); setDeleteTarget(null); }}
+          title="Delete Tournament"
+          message={`Remove "${deleteTarget?.name}" permanently? Player participation records will also be cleared.`}
+          confirmLabel="Delete"
+        />
+      )}
     </div>
   );
 }

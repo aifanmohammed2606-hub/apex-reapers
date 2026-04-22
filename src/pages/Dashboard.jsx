@@ -1,4 +1,5 @@
 import { useApp } from '../context/AppContext';
+import { useAuth } from '../context/AuthContext';
 import { Trophy, Users, Calendar, AlertCircle, TrendingUp, Clock, Zap } from 'lucide-react';
 import { formatDate, formatTime, getDaysUntil, getStatusColor, getFormatColor, getRoleColor, getRoleIcon } from '../utils/helpers';
 import Badge from '../components/ui/Badge';
@@ -31,6 +32,7 @@ function StatCard({ icon: Icon, label, value, sub, color = 'red', onClick }) {
 
 export default function Dashboard() {
   const { players, tournaments, setActivePage, setActiveTournamentId } = useApp();
+  const { isAdmin } = useAuth();
 
   const upcoming = tournaments.filter((t) => t.status === 'Upcoming');
   const completed = tournaments.filter((t) => t.status === 'Completed');
@@ -51,20 +53,22 @@ export default function Dashboard() {
             <Zap size={14} className="text-red-400" />
             <span className="text-red-400 text-xs font-mono tracking-widest uppercase">Squad Active</span>
           </div>
-          <h2 className="text-white font-display font-black text-2xl lg:text-3xl tracking-wide">
-            Welcome back, <span className="text-gradient-red">Commander</span>
+          <h2 className="text-white font-display font-black text-2xl lg:text-3xl tracking-wide flex items-baseline gap-3">
+            Welcome back, <span className="text-gradient-red">{isAdmin ? 'Commander' : 'Reaper'}</span>
+            <span className="text-[10px] text-slate-600 font-mono tracking-tighter uppercase opacity-50">v2.1 Live</span>
           </h2>
           <p className="text-slate-400 text-sm font-body mt-1">
             {upcoming.length} upcoming tournament{upcoming.length !== 1 ? 's' : ''} · {available.length} players ready
+            {!isAdmin && <span className="text-slate-500"> · View-only mode</span>}
           </p>
         </div>
       </div>
 
       {/* Stat Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard icon={Users} label="Total Players" value={players.length} sub={`${available.length} available`} color="cyan" onClick={() => setActivePage('players')} />
-        <StatCard icon={Trophy} label="Tournaments" value={tournaments.length} sub={`${completed.length} completed`} color="yellow" onClick={() => setActivePage('tournaments')} />
-        <StatCard icon={Calendar} label="Upcoming" value={upcoming.length} sub="scheduled matches" color="red" onClick={() => setActivePage('tournaments')} />
+        <StatCard icon={Users} label="Total Players" value={players.length} sub={`${available.length} available`} color="cyan" onClick={isAdmin ? () => setActivePage('players') : undefined} />
+        <StatCard icon={Trophy} label="Tournaments" value={tournaments.length} sub={`${completed.length} completed`} color="yellow" onClick={isAdmin ? () => setActivePage('tournaments') : undefined} />
+        <StatCard icon={Calendar} label="Upcoming" value={upcoming.length} sub="scheduled matches" color="red" onClick={isAdmin ? () => setActivePage('tournaments') : undefined} />
         <StatCard icon={AlertCircle} label="Idle Players" value={neverPlayed.length} sub="haven't played yet" color="purple" onClick={() => setActivePage('tracker')} />
       </div>
 
@@ -110,17 +114,21 @@ export default function Dashboard() {
                   </p>
                 </div>
               </div>
-              <button onClick={() => { setActiveTournamentId(nextTournament.id); setActivePage('lineup'); }} className="w-full py-2 bg-red-600/20 hover:bg-red-600/30 border border-red-500/30 text-red-400 font-display font-semibold text-sm rounded-lg transition-all">
-                Set Lineup →
-              </button>
+              {isAdmin && (
+                <button onClick={() => { setActiveTournamentId(nextTournament.id); setActivePage('lineup'); }} className="w-full py-2 bg-red-600/20 hover:bg-red-600/30 border border-red-500/30 text-red-400 font-display font-semibold text-sm rounded-lg transition-all">
+                  Set Lineup →
+                </button>
+              )}
             </div>
           ) : (
             <div className="text-center py-8">
               <Trophy size={32} className="text-slate-600 mx-auto mb-2" />
               <p className="text-slate-500 text-sm">No upcoming tournaments</p>
-              <button onClick={() => setActivePage('tournaments')} className="mt-3 text-red-400 text-xs font-display hover:text-red-300 transition-colors">
-                Create one →
-              </button>
+              {isAdmin && (
+                <button onClick={() => setActivePage('tournaments')} className="mt-3 text-red-400 text-xs font-display hover:text-red-300 transition-colors">
+                  Create one →
+                </button>
+              )}
             </div>
           )}
         </div>
@@ -132,7 +140,9 @@ export default function Dashboard() {
               <TrendingUp size={16} className="text-red-400" />
               <h3 className="text-white font-display font-bold tracking-wide">Roster Overview</h3>
             </div>
-            <button onClick={() => setActivePage('players')} className="text-slate-500 hover:text-red-400 text-xs font-mono transition-colors">View All →</button>
+            {isAdmin && (
+              <button onClick={() => setActivePage('players')} className="text-slate-500 hover:text-red-400 text-xs font-mono transition-colors">View All →</button>
+            )}
           </div>
           {players.length === 0 ? (
             <div className="text-center py-8">
@@ -179,9 +189,11 @@ export default function Dashboard() {
                 ))}
               </div>
             </div>
-            <button onClick={() => setActivePage('lineup')} className="text-purple-400 text-xs font-mono flex-shrink-0 hover:text-purple-300 transition-colors">
-              Assign →
-            </button>
+            {isAdmin && (
+              <button onClick={() => setActivePage('lineup')} className="text-purple-400 text-xs font-mono flex-shrink-0 hover:text-purple-300 transition-colors">
+                Assign →
+              </button>
+            )}
           </div>
         </div>
       )}
